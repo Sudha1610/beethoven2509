@@ -33,9 +33,45 @@ def create_employee(id, name, job_title, salary, join_date):
         pickle.dump(employees, writer)
     logging.info(f'{name} Employee Created.')
 '''
+'''    import logging 
+    import pickle
+    import os 
+
+    logging.basicConfig(filename='app.log', 
+            format='%(asctime)s %(levelname)s: %(message)s',
+            level=logging.INFO)
+
+    file_name = 'employee.dat'
+    def load_from_file() :
+        if os.path.exists(file_name):
+            with open(file_name, 'rb') as reader:
+                employees = pickle.load(reader)
+        else:
+            employees = []
+        return employees 
+    def save_to_file(employees):
+        with open(file_name, 'wb') as writer:
+            pickle.dump(employees, writer) 
+
+    employees = load_from_file() #### []
+    def create_employee(id, name, job_title, salary, join_date):    
+        emp = {
+            'id':id, 
+            'name': name, 
+            'job_title': job_title, 
+            'salary': salary, 
+            'join_date': join_date
+        }
+        employees.append(emp)
+        save_to_file(employees) ####
+        logging.info(f'{name} Employee Created.')
+    def read_all():
+        return employees'''
+
 import logging 
 import pickle
 import os 
+from app_errors import CreateEmployeeException
 
 logging.basicConfig(filename='app.log', 
         format='%(asctime)s %(levelname)s: %(message)s',
@@ -44,14 +80,22 @@ logging.basicConfig(filename='app.log',
 file_name = 'employee.dat'
 def load_from_file() :
     if os.path.exists(file_name):
-        with open(file_name, 'rb') as reader:
-            employees = pickle.load(reader)
+        try:
+            with open(file_name, 'rb') as reader:
+                employees = pickle.load(reader)
+        except Exception as ex:
+            logging.error(ex)
+            employees = []
     else:
         employees = []
     return employees 
 def save_to_file(employees):
-    with open(file_name, 'wb') as writer:
-        pickle.dump(employees, writer) 
+    try:
+        with open(file_name, 'wb') as writer:
+            pickle.dump(employees, writer) 
+    except Exception as ex:
+        logging.error(ex)
+        raise CreateEmployeeException("Error in Employee Creation.")
 
 employees = load_from_file() #### []
 def create_employee(id, name, job_title, salary, join_date):    
